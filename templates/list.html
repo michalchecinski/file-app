@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Przesyłanie plików</title>
+  <link rel=stylesheet href=static/index.css type=text/css>
+</head>
+
+<body>
+  <div class="topnav">
+  <a href="list" class="active">Lista</a>
+  <a href="logout">Logout</a>
+  </div>
+  Lista plików:
+  <ul>
+  {% if files %}
+    {% for file in files %}
+    <li><a href="files/{{username}}/{{file}}"> {{file}} </a></li>
+    {% endfor %}
+    {% else %}
+     <h3>Nie masz jeszcze żadnych plików!</h3>
+    {% endif %}
+  </ul>
+  {% if can_upload == False %}
+  <h3 id="error">Nie możesz uploadować już plików!</h3>
+  {% else %}
+  <form method="POST" action="upload" enctype="multipart/form-data">
+      Plik: <input type="file" name="file" required data-value-missing="This field is required!"" />
+    <input type="submit" id="submitButton" />
+  </form>
+  {% endif %}
+</body>
+
+<footer>
+</footer>
+
+</html>
