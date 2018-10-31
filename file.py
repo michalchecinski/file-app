@@ -32,7 +32,6 @@ def register_user(username, password):
         return False
     salt = ''.join(random.choices(string.ascii_letters+string.digits, k=16))
     passwd = hashlib.sha3_256(password.encode('utf-8')+salt.encode('utf-8')).hexdigest()
-    print(passwd)
     redis.set('checinsm:user:'+username+':password', passwd)
     redis.set('checinsm:user:'+username+':salt', salt)
     return True
@@ -101,7 +100,7 @@ def download(username, filename):
     if cookie_username is None:
         return render_template('login.html', error='Musisz sie najpierw zalogować')
     if cookie_username != username:
-        return render_template('fileerr.html', error='NIeładnie tak pobierać nieswoje pliki!')
+        return render_template('fileerr.html', error='Nieładnie tak pobierać nieswoje pliki!')
     jwt = make_jwt(username)
     return redirect(f'{app.config["base_api_url"]}/files/{username}/{filename}?jwt={jwt}', code=301)
 
@@ -130,7 +129,7 @@ def log_the_user_in(username):
 
 def insert_user_token(username):
     token = token_generate()
-    redis.set('checinsm:user:'+username+':token', token)
+    redis.set('checinsm:token:'+token+':username', username)
     return token
 
 
@@ -141,11 +140,9 @@ def delete_user_token(username):
 
 
 def username_from_cookie(cookie):
-    for key in redis.scan_iter('checinsm:user:*:token'):
-        redis_token = redis.get(key).decode('utf-8')
-        if redis_token == cookie:
-            return key.decode('utf-8').replace('checinsm:user:', '').replace(':token', '')
-    return None
+    if not cookie:
+        return None
+    return redis.get('checinsm:token:'+cookie+':username').decode('utf-8')
 
 
 def token_generate():
