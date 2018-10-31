@@ -16,7 +16,7 @@
   <ul>
   {% if files %}
     {% for file in files %}
-    <li><a href="files/{{username}}/{{file}}"> {{file}} </a></li>
+    <li><a href="{{file.url}}"> {{file.filename}} </a></li>
     {% endfor %}
     {% else %}
      <h3>Nie masz jeszcze żadnych plików!</h3>
@@ -25,8 +25,9 @@
   {% if can_upload == False %}
   <h3 id="error">Nie możesz uploadować już plików!</h3>
   {% else %}
-  <form method="POST" action="upload" enctype="multipart/form-data">
+  <form method="POST" action="{{upload_url}}" enctype="multipart/form-data">
       Plik: <input type="file" name="file" required data-value-missing="This field is required!"" />
+    <input type="hidden" name="jwt"  value="{{ jwt }}"/>
     <input type="submit" id="submitButton" />
   </form>
   {% endif %}
