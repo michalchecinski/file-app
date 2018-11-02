@@ -2,20 +2,20 @@ from flask import Flask
 from flask import request
 from flask import make_response
 from flask import send_from_directory
-from flask import abort
+from flask import redirect
 from werkzeug.utils import secure_filename
 import os, os.path
-import json
 from flask import jsonify
 import jwt
 from functools import wraps
 from datetime import datetime
 
+
 app = Flask(__name__)
 app.secret_key = b'jf764o;03n?mv9936bv?le874nb;s.'
 app.config['SECRET_KEY'] = 'giNyIS8Tc9oQR1GIiq6nvhyzg9MOkvMHBilwv16W_rE'
+app.config["base_app_url"] = 'http://localhost:5000/checinsm/file'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 #16MB max upload size
-
 
 def token_required(f):
     @wraps(f)
@@ -56,13 +56,13 @@ def download(current_user, username, filename):
 @app.route('/checinsm/dl/upload', methods=['POST'])
 @token_required
 def upload(current_user):
-    print(request.files)
     if can_upload_files(current_user) == False:
         return make_response("You cannot upload more files", 403)
     if request.method == 'POST':
         f = request.files['file']
         f.save('files/' + current_user +'/' + secure_filename(f.filename))
-    return make_response('Success', 200)
+    #return make_response('Success', 200)
+    return redirect(f'{app.config["base_app_url"]}/list', code=301)
 
 
 # @app.route('/checinsm/dl/canUpload', methods=['GET'])
