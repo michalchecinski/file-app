@@ -136,7 +136,7 @@ def insert_user_token(username):
 def delete_user_token(username):
     if not username:
         return
-    redis.set('checinsm:user:'+username+':token', '')
+    redis.delete('checinsm:user:'+username+':token')
 
 
 def username_from_cookie(cookie):
