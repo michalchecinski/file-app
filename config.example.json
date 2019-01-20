@@ -1,5 +1,11 @@
 {
     "app_secretkey":"secret app key for flask",
     "base_app_url":"http://localhost:5000/checinsm/file",
-    "base_api_url":"http://localhost:4500/checinsm/dl"
+    "base_api_url":"http://localhost:4500/checinsm/dl",
+    "SECRET_KEY_JWT":"secret key used for jwt tokens",
+    "notification_url":"http://localhost:8113/checinsm/notify/send",
+    "auth0_secret":"secret from auth0 config",
+    "auth0_callback_url":"http://localhost:5000/checinsm/file/callback",
+    "auth0_base_url":"https://your-auth0-app-url.eu.auth0.com",
+    "auth0_client_id":"client id form auth0 client config"
 }
