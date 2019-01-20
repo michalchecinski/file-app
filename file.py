@@ -111,6 +111,32 @@ def download(username, filename):
     return redirect(f'{app.config["base_api_url"]}/files/{username}/{filename}?jwt={jwt}', code=301)
 
 
+@app.route('/checinsm/file/share', methods=['GET'])
+def share():
+    cookie_username = username_from_cookie(request.cookies.get('userID'))
+    if cookie_username is None:
+        return redirect(url_for('login'))
+    filename = request.args.get('file')
+    # if not filename in files_name_url(cookie_username):
+    #     return render_template('fileerr.html', error='Nie masz takiego pliku!')
+    file_uname = cookie_username+"/"+filename
+    m = hashlib.md5()
+    m.update(file_uname.encode('utf-8'))
+    file_md5 = m.hexdigest()
+    if file_md5 not in shared_dict:
+        shared_dict[file_md5] = file_uname
+    return render_template('share.html', filename=filename, username=cookie_username, link=f'{app.config["base_app_url"]}/download/{file_md5}')
+
+
+@app.route('/checinsm/file/download/<filehash>', methods=['GET'])
+def dowload_share(filehash):
+    file = shared_dict.get(filehash)
+    if not file:
+        return render_template('fileerr.html', error='Cannot fild that file')
+    jwt = make_jwt('shared')
+    return redirect(f'{app.config["base_api_url"]}/files/{file}?jwt={jwt}', code=301)
+
+
 def valid_login(username, password):
     redis_password = redis.get('checinsm:user:'+username+':password').decode('utf-8')
     redis_salt = redis.get('checinsm:user:' + username + ':salt').decode('utf-8')
