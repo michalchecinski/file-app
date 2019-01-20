@@ -14,7 +14,7 @@ App has several micro-services:
 | Technology name | purpose |
 |------|-------|
 | [Flask](http://flask.pocoo.org/) | framework used in file app and dl API app |
-| auth0.com | Identity provider |
+| [auth0.com](https://auth0.com) | Identity provider |
 | [JWT](https://jwt.io/) | Tokens used for authorisng user between API (dl) app and main (file) app |
 | [SSE](https://www.w3schools.com/html/html5_serversentevents.asp) | To receive notifications in HTML without constantlly sending requests to server |
 | [Node.js](https://nodejs.org/en/) | Serve notifications |
