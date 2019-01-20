@@ -3,3 +3,4 @@ files
 *.zip
 .idea
 node_modules
+config.json
