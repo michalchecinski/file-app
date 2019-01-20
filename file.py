@@ -18,13 +18,19 @@ curr_dir = os.getcwd()
 
 print(os.path.join(curr_dir, 'static'))
 
-app = Flask(__name__, static_url_path='/static/')
-app.secret_key = b'jf764o;do7?mv9936bv?lkgt67;s.'
+with open('config.json') as f:
+    config = json.load(f)
 
 app.config['SECRET_KEY'] = 'giNyIS8Tc9oQR1GIiq6nvhyzg9MOkvMHBilwv16W_rE'
 app.config['base_api_url'] = 'http://localhost:4500/checinsm/dl'
 app.config["base_app_url"] = 'http://localhost:5000/checinsm/file'
 
+app = Flask(__name__, static_url_path='/checinsm/file/static')
+app.secret_key = config['app_secretkey']
+
+app.config['SECRET_KEY'] = config["SECRET_KEY_JWT"]
+app.config['base_api_url'] = config["base_api_url"]
+app.config["base_app_url"] = config["base_app_url"]
 redis = redis.Redis()
 
 def register_user(username, password):

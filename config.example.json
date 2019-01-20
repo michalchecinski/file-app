@@ -1,0 +1,5 @@
+{
+    "app_secretkey":"secret app key for flask",
+    "base_app_url":"http://localhost:5000/checinsm/file",
+    "base_api_url":"http://localhost:4500/checinsm/dl"
+}
