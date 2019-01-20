@@ -19,8 +19,8 @@ with open('config.json') as f:
 
 
 app = Flask(__name__)
-app.secret_key = b'jf764o;03n?mv9936bv?le874nb;s.'
-app.config['SECRET_KEY'] = config['SECRET_KEY']
+app.secret_key = config['app_secretkey']
+app.config['SECRET_KEY'] = config['SECRET_KEY_JWT']
 app.config["base_app_url"] = config["base_app_url"]
 app.config["notification_url"] = config["notification_url"]
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 #16MB max upload size
