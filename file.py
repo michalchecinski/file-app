@@ -12,13 +12,13 @@ import redis
 import hashlib
 import jwt
 import datetime
-import requests 
+import requests
 from authlib.flask.client import OAuth
 from six.moves.urllib.parse import urlencode
 
+
 curr_dir = os.getcwd()
 
-print(os.path.join(curr_dir, 'static'))
 
 with open('config.json') as f:
     config = json.load(f)
@@ -52,6 +52,7 @@ auth0 = oauth.register(
     },
 )
 
+
 @app.route('/checinsm/file/')
 def index():
     return render_template('index.html')
@@ -60,14 +61,14 @@ def index():
 @app.route('/checinsm/file/login')
 def login():
     return auth0.authorize_redirect(redirect_uri=app.config["auth0_callback_url"], audience=app.config["auth0_base_url"]+'/userinfo')
-        
+
 
 @app.route('/checinsm/file/callback')
 def callback_handling():
     auth0.authorize_access_token()
     resp = auth0.get('userinfo')
     userinfo = resp.json()
-        
+
     return log_the_user_in(userinfo['name'])
 
 
@@ -205,6 +206,11 @@ def files_name_url(username):
         file_data = {}
         file_data["url"] = f'files/{username}/{file}'
         file_data["filename"] = file
+        file_data["mini"] = None
+
+        if file.endswith(('.png', '.jpg', '.jpeg')):
+            file_data["mini"] = 'static/mini/'+file
+            
         output.append(file_data)
 
     return output
