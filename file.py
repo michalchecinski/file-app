@@ -13,6 +13,8 @@ import hashlib
 import jwt
 import datetime
 import requests 
+from authlib.flask.client import OAuth
+from six.moves.urllib.parse import urlencode
 
 curr_dir = os.getcwd()
 
@@ -21,9 +23,6 @@ print(os.path.join(curr_dir, 'static'))
 with open('config.json') as f:
     config = json.load(f)
 
-app.config['SECRET_KEY'] = 'giNyIS8Tc9oQR1GIiq6nvhyzg9MOkvMHBilwv16W_rE'
-app.config['base_api_url'] = 'http://localhost:4500/checinsm/dl'
-app.config["base_app_url"] = 'http://localhost:5000/checinsm/file'
 
 app = Flask(__name__, static_url_path='/checinsm/file/static')
 app.secret_key = config['app_secretkey']
@@ -31,61 +30,54 @@ app.secret_key = config['app_secretkey']
 app.config['SECRET_KEY'] = config["SECRET_KEY_JWT"]
 app.config['base_api_url'] = config["base_api_url"]
 app.config["base_app_url"] = config["base_app_url"]
+app.config["auth0_callback_url"] = config["auth0_callback_url"]
+app.config["auth0_client_id"] = config["auth0_client_id"]
+app.config["auth0_base_url"] = config["auth0_base_url"]
+
+oauth = OAuth(app)
+
+shared_dict = dict()
+
 redis = redis.Redis()
 
-def register_user(username, password):
-    if redis.get('checinsm:user:'+username+':password'):
-        return False
-    salt = ''.join(random.choices(string.ascii_letters+string.digits, k=16))
-    passwd = hashlib.sha3_256(password.encode('utf-8')+salt.encode('utf-8')).hexdigest()
-    redis.set('checinsm:user:'+username+':password', passwd)
-    redis.set('checinsm:user:'+username+':salt', salt)
-    return True
-
-register_user('michal', 'haslo')
-
+auth0 = oauth.register(
+    'auth0',
+    client_id = app.config["auth0_client_id"],
+    client_secret = config["auth0_secret"],
+    api_base_url = app.config["auth0_base_url"],
+    access_token_url = app.config["auth0_base_url"]+'/oauth/token',
+    authorize_url = app.config["auth0_base_url"]+'/authorize',
+    client_kwargs={
+        'scope': 'openid profile',
+    },
+)
 
 @app.route('/checinsm/file/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/checinsm/file/login', methods=['POST', 'GET'])
+@app.route('/checinsm/file/login')
 def login():
-    username = username_from_cookie(request.cookies.get('userID'))
-    if username:
-        return redirect(url_for('list'))
+    return auth0.authorize_redirect(redirect_uri=app.config["auth0_callback_url"], audience=app.config["auth0_base_url"]+'/userinfo')
         
-    error = None
-    if request.method == 'POST':
-        if valid_login(request.form['username'], request.form['password']):
-            return log_the_user_in(request.form['username'])
-        else:
-            error = 'Invalid username/password'
-    return render_template('login.html', error=error)
 
-
-@app.route('/checinsm/file/register', methods=['POST', 'GET'])
-def register():
-    username = username_from_cookie(request.cookies.get('userID'))
-    if username:
-        return redirect(url_for('list'))
+@app.route('/checinsm/file/callback')
+def callback_handling():
+    auth0.authorize_access_token()
+    resp = auth0.get('userinfo')
+    userinfo = resp.json()
         
-    error = None
-    if request.method == 'POST':
-        if register_user(request.form['username'], request.form['password']):
-            return redirect(url_for('login'))
-        else:
-            error = 'Username exists in app already'
-    return render_template('register.html', error=error)
+    return log_the_user_in(userinfo['name'])
 
 
 @app.route('/checinsm/file/logout', methods=['GET'])
 def logout():
     username = username_from_cookie(request.cookies.get('userID'))
     delete_user_token(username)
-    resp = make_response(render_template('logout.html'))
-    resp.set_cookie('userID', '', expires=0, secure=True, httponly=True)
+    params = {'returnTo': url_for('index', _external=True), 'client_id': app.config["auth0_client_id"]}
+    resp = redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
+    resp.set_cookie('userID', '', expires=0)#, secure=True, httponly=True)
     return resp
 
 
@@ -93,11 +85,11 @@ def logout():
 def list():
     username = username_from_cookie(request.cookies.get('userID'))
     if username is None:
-        return render_template('login.html', error='Musisz sie najpierw zalogować')
+        return redirect(url_for('login'))
 
     files = files_name_url(username)
 
-    return render_template('list.html', files=files, can_upload=can_upload(username), jwt=make_jwt(username), upload_url=app.config['base_api_url']+"/upload")
+    return render_template('list.html', files=files, can_upload=can_upload(username), jwt=make_jwt(username), upload_url=app.config['base_api_url']+"/upload", username=username)
 
 
 @app.route('/checinsm/file/files/<username>/<filename>', methods=['GET'])
@@ -129,7 +121,7 @@ def log_the_user_in(username):
     expire_date = datetime.datetime.now() + datetime.timedelta(days=1)
     cookie = insert_user_token(username)
     resp = redirect(url_for('list'))
-    resp.set_cookie('userID', cookie, expires=expire_date)#, secure=True, httponly=True)
+    resp.set_cookie('userID', cookie)#, expires=expire_date, secure=True, httponly=True)
     return resp
 
 
@@ -188,6 +180,5 @@ def make_jwt(username, expiration_minutes=3):
     expiry = datetime.datetime.utcnow() + datetime.timedelta(minutes=expiration_minutes)
     return jwt.encode({'username': username, 'exp' : expiry}, app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
 
-
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=False)
+if __name__ == "__main__":
+    app.run("0.0.0.0", 5000)
