@@ -4,3 +4,4 @@ files
 .idea
 node_modules
 config.json
+ssl
