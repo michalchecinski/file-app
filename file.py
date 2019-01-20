@@ -91,14 +91,22 @@ def list():
 
     return render_template('list.html', files=files, can_upload=can_upload(username), jwt=make_jwt(username), upload_url=app.config['base_api_url']+"/upload", username=username)
 
+@app.route('/checinsm/file/upload')
+def upload():
+    username = username_from_cookie(request.cookies.get('userID'))
+    if username is None:
+        return redirect(url_for('login'))
+
+    return render_template('upload.html', can_upload=can_upload(username), jwt=make_jwt(username), upload_url=app.config['base_api_url']+"/upload", username=username)
+
 
 @app.route('/checinsm/file/files/<username>/<filename>', methods=['GET'])
 def download(username, filename):
     cookie_username = username_from_cookie(request.cookies.get('userID'))
     if cookie_username is None:
-        return render_template('login.html', error='Musisz sie najpierw zalogować')
+        return redirect(url_for('login'))
     if cookie_username != username:
-        return render_template('fileerr.html', error='Nieładnie tak pobierać nieswoje pliki!')
+        return render_template('fileerr.html', error="You're trying to download not your files. You rebel ;)", username=cookie_username)
     jwt = make_jwt(username)
     return redirect(f'{app.config["base_api_url"]}/files/{username}/{filename}?jwt={jwt}', code=301)
 
@@ -169,7 +177,7 @@ def files_name_url(username):
 
     for file in files:
         file_data = {}
-        file_data["url"] = f'{app.config["base_app_url"]}/files/{username}/{file}'
+        file_data["url"] = f'files/{username}/{file}'
         file_data["filename"] = file
         output.append(file_data)
 

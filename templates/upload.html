@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="File hosting app.">
+    <meta name="author" content="Michał Chęciński">
+
+    <title>File hosting app - Michał Chęciński</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- <link href="static/style.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+        <div class="container">
+          <a class="navbar-brand" href="/">File app</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="list">File list</a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="upload">Upload File
+                    <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              </ul>
+              <ul class="navbar-nav my-2 my-lg-0">
+              <li class="nav-item">
+                <a class="nav-link disabled">{{username}}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="logout">Logout</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+      {% if can_upload == False %}
+    <div class="alert alert-danger" role="alert">
+      You cannot upload more files!
+    </div>
+  {% else %}
+        <form method="POST" action="{{upload_url}}" enctype="multipart/form-data">
+          <div class="form-group">
+          <label for="file">File to upload:</label>
+          <input type="file" class="form-control-file" id="file" name="file" required data-value-missing="This field is required!">
+          </div>
+        <input type="hidden" name="jwt"  value="{{ jwt }}"/>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+  {% endif %}
+    </div>
+    
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="static/vendor/jquery/jquery.min.js"></script>
+    <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  </body>
+
+  <footer class="page-footer font-small blue pt-4">
+    <div class="footer-copyright text-center py-3">© 2018 Copyright:
+      <a href="https://michalchecinski.pl"> Michał Chęciński</a>
+    </div>
+
+  </footer>
+
+</html>
