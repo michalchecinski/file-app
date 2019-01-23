@@ -8,7 +8,7 @@ App has several micro-services:
 * [file.py](https://github.com/michalchecinski/file-app/blob/master/file.py) - main app that serves views and manages users;
 * [dl.py](https://github.com/michalchecinski/file-app/blob/master/dl.py) - app used for uploading and downloading files;
 * [notification.js](https://github.com/michalchecinski/file-app/blob/master/notification.js) - notification server. When user is logged in on several devices would see on other devices that file was uploaded by him/her;
-* [resizer.py](https://github.com/michalchecinski/file-app/blob/master/resizer.py) - app that makes minified versions of images to show on the files list. It uses imagemagick (you must provide that program).
+* [resizer.py](https://github.com/michalchecinski/file-app/blob/master/resizer.py) - app that makes minified versions of images to show on the files list. It uses [imagemagick](https://www.imagemagick.org/) (you must provide that program).
 
 ## Technologies used:
 | Technology name | purpose |
