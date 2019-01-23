@@ -5,10 +5,10 @@ It's purpose is to host files and allow users to share them with others (Dropbox
 
 ## Architecture
 App has several micro-services:
-* file.py - main app that serves views and manages users;
-* dl.py - app used for uploading and downloading files;
-* notification.js - notification server. When user is logged in on several devices would see on other devices that file was uploaded by him/her;
-* resizer.py - app that makes minified versions of images to show on the files list. It uses imagemagick (you must provide that program).
+* [file.py](https://github.com/michalchecinski/file-app/blob/master/file.py) - main app that serves views and manages users;
+* [dl.py](https://github.com/michalchecinski/file-app/blob/master/dl.py) - app used for uploading and downloading files;
+* [notification.js](https://github.com/michalchecinski/file-app/blob/master/notification.js) - notification server. When user is logged in on several devices would see on other devices that file was uploaded by him/her;
+* [resizer.py](https://github.com/michalchecinski/file-app/blob/master/resizer.py) - app that makes minified versions of images to show on the files list. It uses imagemagick (you must provide that program).
 
 ## Technologies used:
 | Technology name | purpose |
@@ -20,5 +20,5 @@ App has several micro-services:
 | [Node.js](https://nodejs.org/en/) | Serve notifications |
 | [RabbitMQ](https://www.rabbitmq.com/) | Communicate between dl.py app and resizer.py app. That way there can be few resizer instances to minify images. |
 | [Redis](https://redis.io/) | Redis is used to store user sessions and allow secure logout |
-| [Bootstrap](https://getbootstrap.com/) | To sites look nice (I'm not any good at styling and views) and also to be responsive. |
+| [Bootstrap](https://getbootstrap.com/) | To sites look nice (I'm not any good at styling and views) and also to be responsive. It has [style.css](https://github.com/michalchecinski/file-app/blob/master/static/style.css) file which include only used components from bootstrap. |
 | [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) | To serve app via multi-server environment. Main config was made in NGNIX. Config for uWSGI is in file.ini and dl.ini files. |
